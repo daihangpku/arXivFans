@@ -28,7 +28,7 @@ This guide will help you step by step to understand how to use this project to f
 You can fetch arXiv updates by running the `main.py` script from the command line. Below is an example command:
 
 ```bash
-python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com
+python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily
 ```
 
 #### Parameter Explanation:
@@ -39,10 +39,11 @@ python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field
 - **`--email_sender`**: The email address from which notifications will be sent.
 - **`--email_password`**: The SMTP password for the sending email **SMTP**.
 - **`--email_receiver`**: The email address where notifications will be received.
+- **`--frequency`**: If you want to update daily then use "daily". Otherwise, just ignore the argument.
 
 #### Execution Results:
 
-- The system will fetch the latest papers from arXiv that match the specified categories and keywords.
+- The system will fetch the latest papers(for last 7 days at most) you haven't updated from arXiv that match the specified categories and keywords .
 - The downloaded papers will be stored locally, and an email notification will be sent to you if there are updates.
 - If you use a proxy server, ensure that you provide the correct proxy information.
 
@@ -73,7 +74,7 @@ You can view the results in two ways:
 ### Step 4: Management and Output
 
 1. **JSON Output**:
-   The fetched paper information is stored in JSON files in the `output` directory, making it easy to access and manage later.
+   The fetched paper information is stored in JSON files in the `./fetch/output` directory, making it easy to access and manage later.
 
 2. **Local Storage**:
    The downloaded papers are stored locally in the `./fetch/paper` directory, organized by category and keywords for future reference.
