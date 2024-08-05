@@ -16,7 +16,7 @@
    ```
 
 2. **安装依赖项**：
-   确保您的系统已安装Python 3。然后，安装项目所需的Python包：
+   确保您的系统已安装Python >=3.8。然后，安装项目所需的Python包：
    ```bash
    pip install -r requirements.txt
    ```
