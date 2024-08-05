@@ -3,6 +3,7 @@ import subprocess
 import multiprocessing
 import schedule
 import time
+from datetime import datetime
 from src.fetch import fetch_arxiv_updates
 from src.send_email import send_email
 from src.download import down_load 
@@ -31,6 +32,8 @@ def fetch_job(categories, keywords, proxy, email_sender, email_password, email_r
     
     
     multi_processing(results, categories, keywords, proxy)
+    print("updated")
+    print(str(datetime.now().date()))
 def main():
     parser = argparse.ArgumentParser(description='Process category and keywords.')
     parser.add_argument('--category', nargs='+', default=['cs.CV', 'cs.RO'], help='List of categories')
@@ -47,15 +50,19 @@ def main():
     email_sender = args.email_sender
     email_password = args.email_password
     email_receiver = args.email_receiver
+    print(keywords)
+    print(categories)
     frequency = args.frequency
     if frequency.lower() == "daily":
-        schedule.every().day.at("8:00").do(fetch_job, categories, keywords, proxy, email_sender, email_password, email_receiver)
+        schedule.every().day.at("08:00").do(fetch_job, categories, keywords, proxy, email_sender, email_password, email_receiver)
+        print("scheduled at 8 a.m. everyday\n")
         while True:
             schedule.run_pending()
-            time.sleep(1)
+            
+            time.sleep(60)
     else:
         fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver)
-
+        
     subprocess.run(['python', 'webpage.py'])
 
 
