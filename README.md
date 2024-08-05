@@ -16,7 +16,7 @@ This guide will help you step by step to understand how to use this project to f
    ```
 
 2. **Install Dependencies**:
-   Ensure that your system has Python 3 installed. Then, install the required Python packages for the project:
+   Ensure that your system has Python >=3.8 installed. Then, install the required Python packages for the project:
    ```bash
    pip install -r requirements.txt
    ```
