@@ -9,10 +9,10 @@ def _format_addr(s):
     name, addr = parseaddr(s)
     return formataddr((Header(name, 'utf-8').encode(), addr))
 
-def send_email(updates, from_addr, password, to_addr):
+def send_email(updates, from_addr, password, to_addr, smtp_server, smtp_port):
     subject = "Newest & Latest arXiv Updates"
     body = "\n".join([f"Title: {update['title']}\nKeyword: {update['keyword']}\nPublished: {update['published']}\nLink: {update['link']}\n" for update in updates])
-    smtp_server = "smtp.163.com"
+    #smtp_server = "smtp.163.com"
 
     msg = MIMEMultipart()
     msg['From'] = _format_addr('user <%s>' % from_addr)
@@ -21,11 +21,16 @@ def send_email(updates, from_addr, password, to_addr):
 
     msg.attach(MIMEText(body, 'plain'))
 
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        #server.starttls()
+        server.login(from_addr, password)
 
-    
-        
-    server = smtplib.SMTP(smtp_server, 25)
-    server.set_debuglevel(1)
-    server.login(from_addr, password)
-    server.sendmail(from_addr, [to_addr], msg.as_string())
-    server.quit()
+        server.sendmail(from_addr, [to_addr], msg.as_string())
+        print("message sent successfully")
+        server.quit()
+    except smtplib.SMTPAuthenticationError as e:
+        print("incorrect password")
+        print("fail to send the email")
+    except Exception as e:
+        print(f"error: {e}")
