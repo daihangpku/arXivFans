@@ -28,7 +28,7 @@ This guide will help you step by step to understand how to use this project to f
 You can fetch arXiv updates by running the `main.py` script from the command line. Below is an example command:
 
 ```bash
-python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily
+python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily --smtp_server smtp.xxx.com --smtp_port 25orxxx
 ```
 
 #### Parameter Explanation:
@@ -40,6 +40,8 @@ python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field
 - **`--email_password`**: The SMTP password for the sending email **SMTP**.
 - **`--email_receiver`**: The email address where notifications will be received.
 - **`--frequency`**: If you want to update daily then use "daily". Otherwise, just ignore the argument.
+- **`--smtp_server`**: This parameter specifies the address of your SMTP server. 
+- **`--smtp_port`**: This parameter specifies the port number of your SMTP server. The port is used to establish a connection to the SMTP server. By default, SMTP typically uses port 25, but if encryption (such as SSL or TLS) is used, other ports like 465 or 587 may be used.
 
 #### Execution Results:
 
