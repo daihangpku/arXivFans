@@ -20,15 +20,14 @@ def multi_processing(results, categories, keywords, proxy):
 
     for p in processes:
         p.join()
-def fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver):
+def fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port):
     results = fetch_arxiv_updates(categories, keywords, days=7)
    
     init_db()
     new_papers = [paper for paper in results if not is_paper_in_db(paper['link'])]
     entry(new_papers,keywords)
 
-    send_email(new_papers, email_sender, email_password, email_receiver)
-    #"daihang2300012956@163.com""YKMFASYCKWRMKCEU"
+    send_email(new_papers, email_sender, email_password, email_receiver, smtp_server, smtp_port)
     
     
     multi_processing(results, categories, keywords, proxy)
@@ -43,6 +42,8 @@ def main():
     parser.add_argument('--email_password', type=str, required=True, help='Sender email password')
     parser.add_argument('--email_receiver', type=str, required=True, help='Receiver email address')
     parser.add_argument('--frequency', type=str, default="", help='regular update')
+    parser.add_argument('--smtp_server', type=str, default="", help="your smtp server's address")
+    parser.add_argument('--smtp_port', type=str, default="", help='smtp port')
     args = parser.parse_args()
     categories = args.category
     keywords = args.keywords
@@ -50,20 +51,22 @@ def main():
     email_sender = args.email_sender
     email_password = args.email_password
     email_receiver = args.email_receiver
-    print(keywords)
-    print(categories)
+    smtp_server = args.smtp_server
+    smtp_port = args.smtp_port
+    
     frequency = args.frequency
+    print(f"you are searching {categories} for {keywords}.")
     if frequency.lower() == "daily":
-        schedule.every().day.at("08:00").do(fetch_job, categories, keywords, proxy, email_sender, email_password, email_receiver)
+        schedule.every().day.at("08:00").do(fetch_job, categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port)
         print("scheduled at 8 a.m. everyday\n")
         while True:
             schedule.run_pending()
             
             time.sleep(60)
     else:
-        fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver)
+        fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port)
         
-    subprocess.run(['python', 'webpage.py'])
+    subprocess.run(['python', 'fetch/webpage.py'])
 
 
 if __name__=="__main__":
