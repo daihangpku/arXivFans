@@ -6,7 +6,8 @@ from datetime import datetime
 import arxiv
 
 def init_db():
-    conn = sqlite3.connect('download.db')
+    cwd = os.getcwd()
+    conn = sqlite3.connect(os.path.join(cwd,"download.db"))
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS papers
                  (id TEXT PRIMARY KEY, title TEXT, keyword TEXT)''')
@@ -14,7 +15,8 @@ def init_db():
     conn.close()
 
 def is_paper_in_db(paper_id):
-    conn = sqlite3.connect('download.db')
+    cwd = os.getcwd()
+    conn = sqlite3.connect(os.path.join(cwd,"download.db"))
     c = conn.cursor()
     c.execute("SELECT 1 FROM papers WHERE id = ?", (paper_id,))
     exists = (c.fetchone() is not None)
@@ -25,7 +27,8 @@ def save_db(update):
     if is_paper_in_db(update['link']):
         return False
     else:
-        conn = sqlite3.connect('download.db')
+        cwd = os.getcwd()
+        conn = sqlite3.connect(os.path.join(cwd,"download.db"))
         cursor = conn.cursor()
         cursor.execute("INSERT OR IGNORE INTO papers (id, title, keyword) VALUES (?, ?, ?)",
               (update['link'], update['title'], update['keyword'][0]))
@@ -41,7 +44,7 @@ def save_paper(update, keyword, proxy):
             'http': f'http://{proxy}',
             'https': f'https://{proxy}',
         }
-        response = requests.get(pdf_url,proxies=proxies)
+        response = requests.get(pdf_url,proxies = proxies)
     else:
         response = requests.get(pdf_url)
     
