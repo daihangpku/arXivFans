@@ -28,7 +28,7 @@
 您可以通过在命令行运行`main.py`脚本来获取arXiv更新。以下是示例命令：
 
 ```bash
-python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily
+python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily --smtp_server smtp.xxx.com --smtp_port 25orxxx
 ```
 
 #### 参数说明：
@@ -40,6 +40,8 @@ python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field
 - **`--email_password`**：发送电子邮件的SMTP密码。
 - **`--email_receiver`**：接收通知的电子邮件地址。
 - **`--frequency`**：如果希望每日更新，则使用“daily”。否则，忽略此参数。
+- **`--smtp_server`**：指定您的 SMTP 服务器地址。
+- **`--smtp_port`**：指定您的 SMTP 服务器端口。这个参数用于指定 SMTP 服务器的端口号。默认情况下，SMTP 通常使用端口 25，但如果使用加密（如 SSL 或 TLS），可能会使用其他端口（例如 465 或 587）。
 
 #### 执行结果：
 
