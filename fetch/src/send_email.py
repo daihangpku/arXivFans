@@ -1,4 +1,3 @@
-from email import encoders
 from email.header import Header
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
@@ -15,8 +14,8 @@ def send_email(updates, from_addr, password, to_addr, smtp_server, smtp_port):
     #smtp_server = "smtp.163.com"
 
     msg = MIMEMultipart()
-    msg['From'] = _format_addr('user <%s>' % from_addr)
-    msg['To'] = _format_addr('user <%s>' % to_addr)
+    msg['From'] = _format_addr('ArXivFans <%s>' % from_addr)
+    msg['To'] = _format_addr('Dear user <%s>' % to_addr)
     msg['Subject'] = subject
 
     msg.attach(MIMEText(body, 'plain'))
