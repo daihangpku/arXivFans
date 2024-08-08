@@ -2,7 +2,10 @@ from flask import Flask, render_template_string, jsonify, request, send_from_dir
 from src.fetch import load_papers_from_db
 import os
 from src.download import save_paper
+
 global download_mode
+global keywords_show
+
 app = Flask(__name__)
 
 def get_updates():
@@ -16,6 +19,10 @@ def handle_link_click(url):
     if download_mode == "1" or download_mode == "2":
         save_paper(url)
     return {"status": "success", "message": f"Handled link click for {url}"}
+
+def handle_download(url):
+    filename = save_paper(url)
+    return {"status": "success", "message": f"Paper downloaded from {url}", "local_link": filename}
 
 @app.route('/')
 def index():
@@ -94,6 +101,22 @@ def index():
         .refresh-button:hover {
             background-color: #45a049;
         }
+        .download-button {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .download-button:hover {
+            background-color: #1E88E5;
+        }
+        .local-link-cell {
+            width: 150px; 
+        }
     </style>
 </head>
 <body>
@@ -101,7 +124,7 @@ def index():
         <h1>Paper List</h1>
         <button class="refresh-button" onclick="fetchUpdates()">Refresh</button>
         <div class="checkbox-group" id="checkbox-group">
-            <!-- 动态复选框项将被添加到这里 -->
+            <!-- Dynamic checkbox items will be added here -->
         </div>
         <table>
             <thead>
@@ -110,17 +133,18 @@ def index():
                     <th>Published date</th>
                     <th>Keywords</th>
                     <th>Link</th>
-                    <th>Local link</th>
+                    <th class="local-link-cell">Local link</th>
                 </tr>
             </thead>
             <tbody id="paper-table-body">
-                <!-- 论文行将被添加到这里 -->
+                <!-- Paper rows will be added here -->
             </tbody>
         </table>
     </div>
 
     <script>
         let currentSelectedKeywords = [];
+        const keywordsShow = {{ keywords_show|tojson }};
 
         function fetchUpdates() {
             fetch('/get-updates')
@@ -134,16 +158,17 @@ def index():
                         local_link: paper['local_link']
                     }));
 
-                    console.log("Results:", results);  // 调试行，打印结果
+                    console.log("Results:", results);  // Debug line to print results
 
-                    // 提取唯一的关键词 
-                    const keywords = [...new Set(results.flatMap(paper => paper.keywords))];
-                    
-                    // 保存当前选择的关键词
+                    // Extract unique keywords and filter by keywordsShow
+                    const keywords = [...new Set(results.flatMap(paper => paper.keywords))]
+                        .filter(keyword => keywordsShow.includes(keyword));
+
+                    // Save currently selected keywords
                     const checkboxes = document.querySelectorAll('input[name="keyword"]:checked');
                     currentSelectedKeywords = Array.from(checkboxes).map(checkbox => checkbox.value);
 
-                    // 加载复选框
+                    // Load checkboxes
                     const checkboxGroup = document.getElementById('checkbox-group');
                     checkboxGroup.innerHTML = '';
                     keywords.forEach(keyword => {
@@ -154,6 +179,7 @@ def index():
                         checkbox.type = 'checkbox';
                         checkbox.name = 'keyword';
                         checkbox.value = keyword;
+                        checkbox.checked = true; // Default all checkboxes to checked
 
                         const label = document.createElement('label');
                         label.className = 'checkbox-label';
@@ -163,16 +189,16 @@ def index():
                         checkboxItem.appendChild(label);
                         checkboxGroup.appendChild(checkboxItem);
 
-                        // 恢复复选框状态
+                        // Restore checkbox state
                         if (currentSelectedKeywords.includes(keyword)) {
                             checkbox.checked = true;
                         }
 
-                        // 添加复选框更改事件监听器
+                        // Add change event listener
                         checkbox.addEventListener('change', updateTable);
                     });
 
-                    // 更新表格
+                    // Update table
                     function updateTable() {
                         const tableBody = document.getElementById('paper-table-body');
                         tableBody.innerHTML = '';
@@ -181,8 +207,8 @@ def index():
                                                       .map(checkbox => checkbox.value);
 
                         const filteredPapers = selectedKeywords.length > 0 ? 
-                            results.filter(paper =>   paper.keywords.some(keyword => selectedKeywords.includes(keyword))) :
-                            results;
+                            results.filter(paper => paper.keywords.some(keyword => selectedKeywords.includes(keyword))) :
+                            [];
 
                         filteredPapers.forEach(paper => {
                             const row = document.createElement('tr');
@@ -212,6 +238,7 @@ def index():
                             row.appendChild(linkCell);
 
                             const localLinkCell = document.createElement('td');
+                            localLinkCell.className = 'local-link-cell';
                             if (paper.local_link) {
                                 const localLink = document.createElement('a');
                                 localLink.href = `/local-files/${paper.local_link}`;
@@ -219,7 +246,11 @@ def index():
                                 localLink.target = "_blank";
                                 localLinkCell.appendChild(localLink);
                             } else {
-                                localLinkCell.textContent = "N/A";
+                                const downloadButton = document.createElement('button');
+                                downloadButton.className = 'download-button';
+                                downloadButton.textContent = 'Download';
+                                downloadButton.addEventListener('click', () => handleDownload(paper.link, downloadButton));
+                                localLinkCell.appendChild(downloadButton);
                             }
                             row.appendChild(localLinkCell);
 
@@ -227,7 +258,7 @@ def index():
                         });
                     }
 
-                    // 初始表格加载
+                    // Initial table load
                     updateTable();
                 });
         }
@@ -247,10 +278,37 @@ def index():
             });
         }
 
-        // 初始加载
+        function handleDownload(url, button) {
+            button.textContent = 'Downloading...';
+            button.disabled = true;
+            fetch('/handle-download', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Download handled:", data);
+                if (data.status === "success") {
+                    const localLink = document.createElement('a');
+                    localLink.href = `/local-files/${data.local_link}`;
+                    localLink.textContent = "Local Link";
+                    localLink.target = "_blank";
+                    button.parentElement.appendChild(localLink);
+                    button.remove();
+                } else {
+                    button.textContent = 'Download';
+                    button.disabled = false;
+                }
+            });
+        }
+
+        // Initial load
         document.addEventListener('DOMContentLoaded', fetchUpdates);
 
-        // 每当点击刷新按钮时获取更新
+        // Fetch updates when refresh button is clicked
         document.addEventListener('click', event => {
             if (event.target.matches('.refresh-button')) {
                 fetchUpdates();
@@ -260,7 +318,7 @@ def index():
 </body>
 </html>
     '''
-    return render_template_string(template, updates=updates)
+    return render_template_string(template, updates=updates, keywords_show=keywords_show)
 
 @app.route('/get-updates')
 def get_updates_route():
@@ -274,14 +332,28 @@ def handle_link_click_route():
     result = handle_link_click(url)
     return jsonify(result)
 
+@app.route('/handle-download', methods=['POST'])
+def handle_download_route():
+    data = request.get_json()
+    url = data.get('url')
+    result = handle_download(url)
+    return jsonify(result)
+
 @app.route('/local-files/<path:filename>')
 def serve_local_files(filename):
     cwd = os.getcwd()
     local_files_directory = os.path.join(cwd, "papers")
     return send_from_directory(local_files_directory, filename)
+
 import sys
 if __name__ == "__main__":
     download_mode = sys.argv[1]
+    length = int(sys.argv[2])
+    keywords_show = []
+    for i in range(3, 3+length):
+        keywords_show.append(sys.argv[i])
+    print(keywords_show)
+    
     print(download_mode)
     with app.app_context():
         app.run(debug=True)
