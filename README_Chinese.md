@@ -12,7 +12,7 @@
    首先，您需要将项目代码克隆到本地计算机。
    ```bash
    git clone <repository_url>
-   cd fetch
+   cd arXivFans
    ```
 
 2. **安装依赖项**：
@@ -28,24 +28,27 @@
 您可以通过在命令行运行`main.py`脚本来获取arXiv更新。以下是示例命令：
 
 ```bash
-python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily --smtp_server smtp.xxx.com --smtp_port 25orxxx
+python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy http://proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily --smtp_server smtp.xxx.com --smtp_port 25orxxx --days 5 --download_mode 0/1/2
 ```
 
 #### 参数说明：
 
 - **`--category`**：指定您要搜索的arXiv分类。例如，`cs.CV`（计算机视觉），`cs.RO`（机器人学）。
-- **`--keywords`**：根据指定的关键词过滤论文。例如，“deep learning”，“radiance field”。
+- **`--keywords`**：根据指定的关键词过滤论文。例如，“deep learning”，“radiance field”，中间用空格隔开，我们将在论文的摘要中比对关键词。
 - **`--proxy`**：（可选）如果需要网络访问代理，请指定代理服务器。
 - **`--email_sender`**：发送通知的电子邮件地址。
 - **`--email_password`**：发送电子邮件的SMTP密码。
 - **`--email_receiver`**：接收通知的电子邮件地址。
-- **`--frequency`**：如果希望每日更新，则使用“daily”。否则，忽略此参数。
+- **`--frequency`**：如果希望每日更新，则使用“daily”将使其在每日8点更新。否则，忽略此参数。
 - **`--smtp_server`**：指定您的 SMTP 服务器地址。
 - **`--smtp_port`**：指定您的 SMTP 服务器端口。这个参数用于指定 SMTP 服务器的端口号。默认情况下，SMTP 通常使用端口 25，但如果使用加密（如 SSL 或 TLS），可能会使用其他端口（例如 465 或 587）。
+- **`--days`**：指定您希望查询几天以内的结果，建议<=7。
+- **`--download_mode`**：指定您的下载模式，0代表不下载，1代表下载访问过的论文，2代表全部下载。
+- 注意，email_sender，email_password，email_receiver，smtp_server，smtp_port缺少任意一个都不会发送邮件。
 
 #### 执行结果：
 
-- 系统将获取过去7天内符合指定分类和关键词的最新论文。
+- 系统将获取过去几天内符合指定分类和关键词的最新论文。
 - 下载的论文将存储在本地，如果有更新，将向您发送电子邮件通知。
 - 如果使用代理服务器，请确保提供正确的代理信息。
 
@@ -63,22 +66,23 @@ python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field
    ```
    http://127.0.0.1:5000/
    ```
-   此页面将显示所有符合您条件的论文。如果没有更新，页面会提示您先获取更新。
+   此页面将显示所有符合您条件的论文。点击refresh可以刷新结果，点击link可以访问论文网站，点击local link将会跳转本地已经下载的pdf。
+   您还可以通过勾选复选框的关键词，筛选您需要的论文。
 
-   您还可以多次运行`webpage.py`查看结果：
+   您还可以单独运行`webpage.py`查看结果：
    ```bash
-   python webpage.py
+   python fetch/webpage.py
    ```
 
 ---
 
 ### 步骤4：管理和输出
 
-1. **JSON输出**：
-   获取的论文信息存储在`./fetch/output`目录中的JSON文件中，方便以后访问和管理。
+1. **database输出**：
+   获取的论文信息存储在`./download.db`目录中的.db文件中,请勿破坏此文件。
 
 2. **本地存储**：
-   下载的论文存储在`./fetch/paper`目录中，按类别和关键词组织，便于日后参考。
+   下载的论文存储在`./papers`目录中，便于日后参考。
 
 ---
 
@@ -93,7 +97,7 @@ python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field
 2. **如何设置代理服务器？**
    - 如果您的网络环境需要代理，可以使用`--proxy`参数指定代理服务器地址和端口。例如：
      ```bash
-     --proxy proxy.example.com:8080
+     --proxy http://proxy.example.com:8080
      ```
 
 3. **如何确保电子邮件通知正确发送？**

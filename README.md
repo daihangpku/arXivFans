@@ -2,108 +2,111 @@
 
 ## User Guide
 
-This guide will help you step by step to understand how to use this project to fetch updates from arXiv, download them locally, and view the results either via email notifications or a local web interface.
+This guide will help you understand how to use this project to fetch updates from arXiv, download them locally, and view the results through email notifications or a local web interface.
 
 ---
 
 ### Step 1: Installation and Configuration
 
 1. **Clone the Repository**:
-   First, you need to clone the project code to your local computer.
+   First, clone the project code to your local machine.
    ```bash
    git clone <repository_url>
-   cd fetch
+   cd arXivFans
    ```
 
 2. **Install Dependencies**:
-   Ensure that your system has Python >=3.8 installed. Then, install the required Python packages for the project:
+   Ensure you have Python >=3.8 installed on your system. Then, install the required Python packages:
    ```bash
    pip install -r requirements.txt
    ```
 
 ---
 
-### Step 2: Fetching arXiv Updates
+### Step 2: Fetch arXiv Updates
 
-You can fetch arXiv updates by running the `main.py` script from the command line. Below is an example command:
+You can fetch arXiv updates by running the `main.py` script from the command line. Here is an example command:
 
 ```bash
-python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily --smtp_server smtp.xxx.com --smtp_port 25orxxx
+python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy http://proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily --smtp_server smtp.xxx.com --smtp_port 25orxxx --days 5 --download_mode 0/1/2
 ```
 
-#### Parameter Explanation:
+#### Parameter Description:
 
-- **`--category`**: Specifies the arXiv categories you want to search. For example, `cs.CV` (Computer Vision), `cs.RO` (Robotics).
-- **`--keywords`**: Filters the papers based on specified keywords. For example, "deep learning", "radiance field".
-- **`--proxy`**: (Optional) Specify a proxy server for network access if needed.
-- **`--email_sender`**: The email address from which notifications will be sent.
-- **`--email_password`**: The SMTP password for the sending email **SMTP**.
-- **`--email_receiver`**: The email address where notifications will be received.
-- **`--frequency`**: If you want to update daily then use "daily". Otherwise, just ignore the argument.
-- **`--smtp_server`**: This parameter specifies the address of your SMTP server. 
-- **`--smtp_port`**: This parameter specifies the port number of your SMTP server. The port is used to establish a connection to the SMTP server. By default, SMTP typically uses port 25, but if encryption (such as SSL or TLS) is used, other ports like 465 or 587 may be used.
+- **`--category`**: Specify the arXiv categories you want to search. For example, `cs.CV` (Computer Vision), `cs.RO` (Robotics).
+- **`--keywords`**: Filter papers based on specified keywords. For example, "deep learning", "radiance field". Separate multiple keywords with spaces; they will be matched against the paper abstracts.
+- **`--proxy`**: (Optional) Specify a proxy server if required for network access.
+- **`--email_sender`**: Email address for sending notifications.
+- **`--email_password`**: SMTP password for the sender email.
+- **`--email_receiver`**: Email address for receiving notifications.
+- **`--frequency`**: Use "daily" to fetch updates daily at 8 AM. Otherwise, omit this parameter.
+- **`--smtp_server`**: Specify your SMTP server address.
+- **`--smtp_port`**: Specify your SMTP server port. This parameter is used to specify the port number of the SMTP server. By default, SMTP usually uses port 25, but if using encryption (like SSL or TLS), other ports (e.g., 465 or 587) may be used.
+- **`--days`**: Specify the number of days to query results for (recommended <=7).
+- **`--download_mode`**: Specify the download mode: 0 for no download, 1 for downloading accessed papers, 2 for downloading all papers.
+- Note that missing any of the parameters `email_sender`, `email_password`, `email_receiver`, `smtp_server`, or `smtp_port` will prevent email notifications from being sent.
 
-#### Execution Results:
+#### Execution Result:
 
-- The system will fetch the latest papers(for last 7 days at most) you haven't updated from arXiv that match the specified categories and keywords .
-- The downloaded papers will be stored locally, and an email notification will be sent to you if there are updates.
-- If you use a proxy server, ensure that you provide the correct proxy information.
+- The system will fetch the latest papers from the past few days that match the specified categories and keywords.
+- Downloaded papers will be stored locally. If there are updates, an email notification will be sent to you.
+- If using a proxy server, ensure you provide the correct proxy information.
 
 ---
 
-### Step 3: Viewing the Results
+### Step 3: View Results
 
-You can view the results in two ways:
+You can view results in two ways:
 
 #### 1. **Email Notifications**:
-   If there are new papers that match your criteria, you will receive an email containing the titles, abstracts, and links to the papers.
+   If there are new papers that match your criteria, you will receive an email with the paper titles, abstracts, and links.
 
-#### 2. **Starting the Web Interface**:
-   After running `main.py`, the `webpage.py` script will automatically start a simple web server to conveniently view the papers fetched that day. 
-   Then, open your browser and visit the following address:
+#### 2. **Start the Web Interface**:
+   After running `main.py`, the `webpage.py` script will automatically start a simple web server to view the fetched papers. Then, open your browser and visit:
    ```
    http://127.0.0.1:5000/
    ```
-   This page will display all the papers that match your criteria. If there are no updates, the page will prompt you to fetch updates first.
+   This page will display all papers that match your criteria. Click "refresh" to update the results, click "link" to visit the paper's website, and click "local link" to view the locally downloaded PDF.
+   You can also filter the papers by selecting keywords checkboxes.
 
-   You can also run `webpage.py` again to view the results multiple times:
+   You can also run `webpage.py` separately to view the results:
    ```bash
-   python webpage.py
+   python fetch/webpage.py
    ```
 
 ---
 
 ### Step 4: Management and Output
 
-1. **JSON Output**:
-   The fetched paper information is stored in JSON files in the `./fetch/output` directory, making it easy to access and manage later.
+1. **Database Output**:
+   The fetched paper information is stored in a .db file in the `./download.db` directory. Please do not modify this file.
 
 2. **Local Storage**:
-   The downloaded papers are stored locally in the `./fetch/paper` directory, organized by category and keywords for future reference.
+   Downloaded papers are stored in the `./papers` directory for future reference.
 
 ---
 
-## Frequently Asked Questions
+## FAQ
 
 1. **How to specify multiple categories or keywords?**
-   - You can specify multiple categories or keywords by separating them with spaces in the command line. For example:
+   - You can separate multiple categories or keywords with spaces in the command line. For example:
      ```bash
      python main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field"
      ```
 
 2. **How to set up a proxy server?**
-   - If your network environment requires a proxy, you can specify the proxy server address and port using the `--proxy` parameter. For example:
+   - If your network environment requires a proxy, use the `--proxy` parameter to specify the proxy server address and port. For example:
      ```bash
-     --proxy proxy.example.com:8080
+     --proxy http://proxy.example.com:8080
      ```
 
 3. **How to ensure email notifications are sent correctly?**
-   - Make sure you provide the correct sender email address, password, and recipient email address. If issues persist, check your email settings to ensure the account allows sending emails via applications (e.g., enabling "Allow less secure apps" access).
+   - Make sure you provide the correct sender email address, password, and recipient email address. If problems persist, check your email settings to ensure the account allows sending emails through applications (e.g., enable "Allow less secure apps" access).
 
 ---
 
 ## Summary
 
-This project provides an efficient way to fetch the latest papers from arXiv, with options to view them via email notifications or a web interface. With simple configuration and command-line operations, you can easily stay updated on the latest research in your field.
+This project provides an effective way to fetch the latest papers from arXiv and view them through email notifications or a web interface. With simple configuration and command-line operations, you can easily stay updated with the latest research in your field.
 
-If you have any questions or encounter issues while using the project, feel free to submit an issue or pull request. Enjoy using the tool!
+If you encounter any issues or have any questions while using the project, feel free to submit an issue or pull request. Enjoy using this tool!
