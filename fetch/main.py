@@ -10,8 +10,8 @@ from src.download import is_paper_in_db
 from src.download import init_db
 
 
-def fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port):
-    results = fetch_arxiv_updates(categories, keywords, proxy, days=7)
+def fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port, download_mode, days):
+    results = fetch_arxiv_updates(categories, keywords, proxy, download_mode, days)
    
     init_db()
     new_papers = [paper for paper in results if not is_paper_in_db(paper['link'])]
@@ -25,9 +25,9 @@ def fetch_job(categories, keywords, proxy, email_sender, email_password, email_r
     print("updated")
     print(str(datetime.now().date()))
 
-def build_web():
+def build_web(download_mode):
     time.sleep(1)
-    subprocess.run(['python', 'fetch/webpage.py'])
+    subprocess.run(['python', 'fetch/webpage.py', download_mode])
 
 def main():
     parser = argparse.ArgumentParser(description='Process category and keywords.')
@@ -40,6 +40,8 @@ def main():
     parser.add_argument('--frequency', type=str, default="", help='regular update')
     parser.add_argument('--smtp_server', type=str, default="", help="your smtp server's address")
     parser.add_argument('--smtp_port', type=str, default="", help='smtp port')
+    parser.add_argument('--download_mode', type=str, default="1", help='0=no download, 1=download when clicking web link, 2=download all, default=1')
+    parser.add_argument('--days', type=int, default=3, help='number of days you want to trace, recommended <= 7, default=3')
     args = parser.parse_args()
     categories = args.category
     keywords = args.keywords
@@ -50,21 +52,24 @@ def main():
     smtp_server = args.smtp_server
     smtp_port = args.smtp_port
     frequency = args.frequency
+    download_mode = args.download_mode
+    days = args.days
     print(f"you are searching {categories} for {keywords}.")
-
+    p = multiprocessing.Process(target = build_web, args=(str(download_mode),))
+    p.start()
+    print(f"updating...")
     if frequency.lower() == "daily":
-        schedule.every().day.at("08:00").do(fetch_job, categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port)
+        schedule.every().day.at("08:00").do(fetch_job, categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port, download_mode, days)
         print("scheduled at 8 a.m. everyday\n")
         while True:
             schedule.run_pending()
             
             time.sleep(60)
     else:
-        p = multiprocessing.Process(target = build_web)
-        p.start()
-        print(f"主进程正在运行 ")
-        fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port)
-        p.join()
+        
+        
+        fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port, download_mode, days)
+    p.join()
         
     
 

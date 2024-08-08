@@ -11,7 +11,6 @@ def _format_addr(s):
 def send_email(updates, from_addr, password, to_addr, smtp_server, smtp_port):
     subject = "Newest & Latest arXiv Updates"
     body = "\n".join([f"Title: {update['title']}\nKeyword: {update['keyword']}\nPublished: {update['published']}\nLink: {update['link']}\n" for update in updates])
-    #smtp_server = "smtp.163.com"
 
     msg = MIMEMultipart()
     msg['From'] = _format_addr('ArXivFans <%s>' % from_addr)

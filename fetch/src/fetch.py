@@ -29,9 +29,9 @@ def multi_processing(results, categories, keywords, proxy):
         p.join()
 
 
-def fetch_arxiv_updates(categories, keywords, proxy, days = 7):
+def fetch_arxiv_updates(categories, keywords, proxy, download_mode, days):
     search_query = ' OR '.join([f'cat:{cat}' for cat in categories])
-    if not proxy == " ":
+    if not proxy == "":
         proxies = {
             'http': f'{proxy}',
             'https': f'{proxy}',
@@ -68,31 +68,30 @@ def fetch_arxiv_updates(categories, keywords, proxy, days = 7):
                     'keyword': [keyword for keyword in keywords if keyword.lower() in passage.summary.lower()]
                 })
         if(cnt%100 == 0):
-            multi_processing(result, categories, keywords, proxy)
+            down_load(result, keywords, proxy, download_mode)
             result = []
+    if not result == []:
+        down_load(result, keywords, proxy, download_mode)
     print("process finished")
     return  results
 
-def load_papers_from_db(file_path):
-    papers = []
+def load_papers_from_db():
     import sqlite3
-# 数据库文件路径
     db_path = 'download.db'
 
-# 确认数据库文件存在
     if not os.path.exists(db_path):
         print(f"Database file does not exist at: {db_path}")
     else:
+        results=[]
         try:
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
-            #keyword = 'radiance field' 
             query = f"SELECT * FROM papers "
 
             cursor.execute(query)
             rows = cursor.fetchall()
 
-            results=[]
+            
             for row in rows:
                 results.append({
                     "title": row[1],
@@ -104,15 +103,8 @@ def load_papers_from_db(file_path):
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
         finally:
-            # 关闭连接
             if conn:
-                conn.close()
-
-
-    #if len(rows) == 0:
-       # return False
-    
-            
+                conn.close()   
     return results
         
     
