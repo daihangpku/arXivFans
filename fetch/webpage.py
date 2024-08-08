@@ -1,20 +1,20 @@
-from flask import Flask, render_template_string, jsonify, request
+from flask import Flask, render_template_string, jsonify, request, send_from_directory
 from src.fetch import load_papers_from_db
 import os
-
+from src.download import save_paper
+global download_mode
 app = Flask(__name__)
 
 def get_updates():
-    cwd = os.getcwd()
-    cwd = os.path.join(cwd, "output")
-    updates = load_papers_from_db(cwd)
+    updates = load_papers_from_db()
     if not updates:
         return []
     updates.sort(key=lambda x: x['published'], reverse=True)
     return updates
 
 def handle_link_click(url):
-    print(f"Link clicked: {url}")
+    if download_mode == "1" or download_mode == "2":
+        save_paper(url)
     return {"status": "success", "message": f"Handled link click for {url}"}
 
 @app.route('/')
@@ -29,6 +29,7 @@ def index():
     <title>Paper List</title>
     <style>
         body {
+            font-size: 20px;
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
             margin: 0;
@@ -38,7 +39,7 @@ def index():
             text-align: center;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1800px;
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -100,20 +101,20 @@ def index():
         <h1>Paper List</h1>
         <button class="refresh-button" onclick="fetchUpdates()">Refresh</button>
         <div class="checkbox-group" id="checkbox-group">
-            <!-- Dynamic checkbox items will be appended here -->
+            <!-- 动态复选框项将被添加到这里 -->
         </div>
         <table>
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Published Date</th>
+                    <th>Published date</th>
                     <th>Keywords</th>
                     <th>Link</th>
-                    <th>Local Link</th>
+                    <th>Local link</th>
                 </tr>
             </thead>
             <tbody id="paper-table-body">
-                <!-- Paper rows will be appended here -->
+                <!-- 论文行将被添加到这里 -->
             </tbody>
         </table>
     </div>
@@ -133,16 +134,16 @@ def index():
                         local_link: paper['local_link']
                     }));
 
-                    console.log("Results:", results);  // Debugging line to print the results
+                    console.log("Results:", results);  // 调试行，打印结果
 
-                    // Extract unique keywords           flatMap
+                    // 提取唯一的关键词 
                     const keywords = [...new Set(results.flatMap(paper => paper.keywords))];
                     
-                    // Save current selected keywords
+                    // 保存当前选择的关键词
                     const checkboxes = document.querySelectorAll('input[name="keyword"]:checked');
                     currentSelectedKeywords = Array.from(checkboxes).map(checkbox => checkbox.value);
 
-                    // Load checkboxes
+                    // 加载复选框
                     const checkboxGroup = document.getElementById('checkbox-group');
                     checkboxGroup.innerHTML = '';
                     keywords.forEach(keyword => {
@@ -162,16 +163,16 @@ def index():
                         checkboxItem.appendChild(label);
                         checkboxGroup.appendChild(checkboxItem);
 
-                        // Restore checkbox state
+                        // 恢复复选框状态
                         if (currentSelectedKeywords.includes(keyword)) {
                             checkbox.checked = true;
                         }
 
-                        // Add event listener for checkbox change
+                        // 添加复选框更改事件监听器
                         checkbox.addEventListener('change', updateTable);
                     });
 
-                    // Update table
+                    // 更新表格
                     function updateTable() {
                         const tableBody = document.getElementById('paper-table-body');
                         tableBody.innerHTML = '';
@@ -213,7 +214,7 @@ def index():
                             const localLinkCell = document.createElement('td');
                             if (paper.local_link) {
                                 const localLink = document.createElement('a');
-                                localLink.href = paper.local_link;
+                                localLink.href = `/local-files/${paper.local_link}`;
                                 localLink.textContent = "Local Link";
                                 localLink.target = "_blank";
                                 localLinkCell.appendChild(localLink);
@@ -226,7 +227,7 @@ def index():
                         });
                     }
 
-                    // Initial table load
+                    // 初始表格加载
                     updateTable();
                 });
         }
@@ -242,15 +243,14 @@ def index():
             .then(response => response.json())
             .then(data => {
                 console.log("Link click handled:", data);
-                // 在这里可以添加任何需要在前端处理的逻辑
                 window.open(href, '_blank');
             });
         }
 
-        // Initial load
+        // 初始加载
         document.addEventListener('DOMContentLoaded', fetchUpdates);
 
-        // Fetch updates whenever the refresh button is clicked
+        // 每当点击刷新按钮时获取更新
         document.addEventListener('click', event => {
             if (event.target.matches('.refresh-button')) {
                 fetchUpdates();
@@ -265,8 +265,6 @@ def index():
 @app.route('/get-updates')
 def get_updates_route():
     updates = get_updates()
-    #updates = [{'link': 'id1', 'title': 'title1', 'keyword': ['Machine Learning', 'AI'], 'published': '2023-08-07 12:00:00'}, 
-               #{'link': 'id2', 'title': 'title2', 'keyword': ['Machine Learning', 'UI'], 'published': '2023-08-07 12:00:00'}]
     return jsonify(updates)
 
 @app.route('/handle-link-click', methods=['POST'])
@@ -276,6 +274,14 @@ def handle_link_click_route():
     result = handle_link_click(url)
     return jsonify(result)
 
+@app.route('/local-files/<path:filename>')
+def serve_local_files(filename):
+    cwd = os.getcwd()
+    local_files_directory = os.path.join(cwd, "papers")
+    return send_from_directory(local_files_directory, filename)
+import sys
 if __name__ == "__main__":
+    download_mode = sys.argv[1]
+    print(download_mode)
     with app.app_context():
         app.run(debug=True)
