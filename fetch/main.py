@@ -25,9 +25,9 @@ def fetch_job(categories, keywords, proxy, email_sender, email_password, email_r
     print("updated")
     print(str(datetime.now().date()))
 
-def build_web(download_mode):
+def build_web(download_mode, keywords):
     time.sleep(1)
-    subprocess.run(['python', 'fetch/webpage.py', download_mode])
+    subprocess.run(['python', 'fetch/webpage.py', download_mode, str(len(keywords))]+ keywords)
 
 def main():
     parser = argparse.ArgumentParser(description='Process category and keywords.')
@@ -42,6 +42,7 @@ def main():
     parser.add_argument('--smtp_port', type=str, default="", help='smtp port')
     parser.add_argument('--download_mode', type=str, default="1", help='0=no download, 1=download when clicking web link, 2=download all, default=1')
     parser.add_argument('--days', type=int, default=3, help='number of days you want to trace, recommended <= 7, default=3')
+    parser.add_argument('--view_keywords', nargs='+', default=[], help='List of keywords you want to view at the website')
     args = parser.parse_args()
     categories = args.category
     keywords = args.keywords
@@ -54,8 +55,12 @@ def main():
     frequency = args.frequency
     download_mode = args.download_mode
     days = args.days
+    if args.view_keywords == []:
+        view_keywords = keywords
+    else:
+        view_keywords = args.view_keywords
     print(f"you are searching {categories} for {keywords}.")
-    p = multiprocessing.Process(target = build_web, args=(str(download_mode),))
+    p = multiprocessing.Process(target = build_web, args=(str(download_mode), view_keywords))
     p.start()
     print(f"updating...")
     if frequency.lower() == "daily":

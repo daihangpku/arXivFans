@@ -40,7 +40,7 @@ def fetch_arxiv_updates(categories, keywords, proxy, download_mode, days):
         session_with_proxy = create_session_with_proxy(proxies)
         arxiv.Client._session = session_with_proxy
 
-    search = arxiv.Search(search_query,max_results = 1000,sort_by = arxiv.SortCriterion.SubmittedDate)
+    search = arxiv.Search(search_query,max_results = 100,sort_by = arxiv.SortCriterion.SubmittedDate)
     print("searching finished")
     results = []
     result = []
