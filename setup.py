@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='arXivFans',  
-    version='0.2.3',
+    version='0.3.0',
     description='A paper fetcher',
     url='https://github.com/daihangpku/arXivFans.git',  
     author='Daihang',
