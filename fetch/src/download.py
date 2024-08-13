@@ -52,11 +52,13 @@ def save_db(update):
     return True
 def extract_arxiv_id(url):
     parts = url.split('/')
-    print(1)
     return parts[len(parts)-1]
     
 def save_paper(url, update = None, proxy = ""):
+    
     cwd = os.getcwd()
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local=file.read()
     if update == None:
         pdf_url = url.replace('abs', 'pdf')
     else:
@@ -77,7 +79,7 @@ def save_paper(url, update = None, proxy = ""):
     else:
         response = requests.get(pdf_url)
     
-    directory = os.path.join(cwd,'papers')
+    directory = os.path.join(local,'papers')
     os.makedirs(directory, exist_ok=True)
     id = extract_arxiv_id(pdf_url)
     filename = f"{id}.pdf"
@@ -103,7 +105,6 @@ def down_load(updates, keywords, download_mode, proxy = ""):
                 if save_db(update):
                     if download_mode == "2":
                         save_paper(update["link"], update, proxy)
-
 
 
 def fetch_all_papers():
