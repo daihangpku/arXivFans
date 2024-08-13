@@ -40,7 +40,7 @@ def fetch_arxiv_updates(categories, keywords, proxy, download_mode, days):
         session_with_proxy = create_session_with_proxy(proxies)
         arxiv.Client._session = session_with_proxy
 
-    search = arxiv.Search(search_query,max_results = 100,sort_by = arxiv.SortCriterion.SubmittedDate)
+    search = arxiv.Search(search_query,max_results = 1000,sort_by = arxiv.SortCriterion.SubmittedDate)
     print("searching finished")
     results = []
     result = []
@@ -77,13 +77,17 @@ def fetch_arxiv_updates(categories, keywords, proxy, download_mode, days):
 
 def load_papers_from_db():
     import sqlite3
-    db_path = 'download.db'
+    cwd = os.getcwd()
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local=file.read()
+    db_path = os.path.join(local, "download.db")
 
     if not os.path.exists(db_path):
         print(f"Database file does not exist at: {db_path}")
     else:
         results=[]
         try:
+            
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             query = f"SELECT * FROM papers "

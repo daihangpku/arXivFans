@@ -44,7 +44,7 @@ def main():
     parser.add_argument('--download_mode', type=str, default="1", help='0=download all when fetching, 1=download when clicking web link,  default=1')
     parser.add_argument('--days', type=int, default=3, help='number of days you want to trace, recommended <= 7, default=3')
     parser.add_argument('--view_keywords', nargs='+', default=[], help='List of keywords you want to view at the website')
-    parser.add_argument('--local', type = str, default=".local", help="where you want to save the papers")
+    parser.add_argument('--local', type = str, default=".local/arxivfans", help="where you want to save the papers")
     args = parser.parse_args()
     categories = args.category
     keywords = args.keywords
