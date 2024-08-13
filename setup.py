@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='arXivFans',  
-    version='0.2.3',
-    description='A paper fetcher',
+    version='0.3.1',
+    description='This project provides an effective way to fetch the latest papers from arXiv and view them through email notifications or a web interface.',
     url='https://github.com/daihangpku/arXivFans.git',  
     author='Daihang',
     author_email='daihang2300012956@163.com',
@@ -22,7 +22,7 @@ setup(
     ],
     python_requires='>=3.8',  
     entry_points = {
-    'console_scripts': ['do = fetch.main:main', 'web = fetch.webpage:main']
+    'console_scripts': ['fetch = fetcharxiv.main:main', 'web = fetcharxiv.webpage:main']
     }
 
 )
