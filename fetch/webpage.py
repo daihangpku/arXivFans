@@ -2,7 +2,9 @@ from flask import Flask, render_template_string, jsonify, request, send_from_dir
 from src.fetch import load_papers_from_db
 import os
 from src.download import save_paper
-
+import webbrowser
+import sys
+import threading
 global download_mode
 global keywords_show
 
@@ -342,10 +344,16 @@ def handle_download_route():
 @app.route('/local-files/<path:filename>')
 def serve_local_files(filename):
     cwd = os.getcwd()
-    local_files_directory = os.path.join(cwd, "papers")
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local= file.read()
+    local_files_directory = os.path.join(local, "papers")
     return send_from_directory(local_files_directory, filename)
 
-import sys
+def open_browser():
+    webbrowser.open_new("http://127.0.0.1:5000/")
+
+
+
 if __name__ == "__main__":
     download_mode = sys.argv[1]
     length = int(sys.argv[2])
@@ -355,5 +363,7 @@ if __name__ == "__main__":
     print(keywords_show)
     
     print(download_mode)
+    
+    threading.Timer(1, open_browser).start()  # 自动打开浏览器
     with app.app_context():
         app.run(debug=True)

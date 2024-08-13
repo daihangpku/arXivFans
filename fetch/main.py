@@ -3,6 +3,7 @@ import subprocess
 import multiprocessing
 import schedule
 import time
+import os
 from datetime import datetime
 from src.fetch import fetch_arxiv_updates
 from src.send_email import send_email
@@ -40,9 +41,10 @@ def main():
     parser.add_argument('--frequency', type=str, default="", help='regular update')
     parser.add_argument('--smtp_server', type=str, default="", help="your smtp server's address")
     parser.add_argument('--smtp_port', type=str, default="", help='smtp port')
-    parser.add_argument('--download_mode', type=str, default="1", help='0=no download, 1=download when clicking web link, 2=download all, default=1')
+    parser.add_argument('--download_mode', type=str, default="1", help='0=download all when fetching, 1=download when clicking web link,  default=1')
     parser.add_argument('--days', type=int, default=3, help='number of days you want to trace, recommended <= 7, default=3')
     parser.add_argument('--view_keywords', nargs='+', default=[], help='List of keywords you want to view at the website')
+    parser.add_argument('--local', type = str, default=".local", help="where you want to save the papers")
     args = parser.parse_args()
     categories = args.category
     keywords = args.keywords
@@ -55,6 +57,10 @@ def main():
     frequency = args.frequency
     download_mode = args.download_mode
     days = args.days
+    local = args.local
+    with open(os.path.join(os.getcwd(), "local.txt"), 'w') as file:
+        file.write(local)
+
     if args.view_keywords == []:
         view_keywords = keywords
     else:
