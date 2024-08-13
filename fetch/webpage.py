@@ -342,7 +342,9 @@ def handle_download_route():
 @app.route('/local-files/<path:filename>')
 def serve_local_files(filename):
     cwd = os.getcwd()
-    local_files_directory = os.path.join(cwd, "papers")
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local= file.read()
+    local_files_directory = os.path.join(local, "papers")
     return send_from_directory(local_files_directory, filename)
 
 import sys
