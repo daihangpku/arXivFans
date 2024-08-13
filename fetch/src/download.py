@@ -5,7 +5,9 @@ import json
 
 def init_db():
     cwd = os.getcwd()
-    conn = sqlite3.connect(os.path.join(cwd, "download.db"))
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local=file.read()
+    conn = sqlite3.connect(os.path.join(local, "download.db"))
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS papers
                      (id TEXT PRIMARY KEY, title TEXT, keyword TEXT, local_link TEXT, date TEXT)''')
@@ -14,7 +16,9 @@ def init_db():
 
 def get_paper_by_id(paper_id):
     cwd = os.getcwd()
-    conn = sqlite3.connect(os.path.join(cwd, "download.db"))
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local=file.read()
+    conn = sqlite3.connect(os.path.join(local, "download.db"))
     c = conn.cursor()
     c.execute("SELECT * FROM papers WHERE id = ?", (paper_id,))
     paper = c.fetchone()
@@ -23,7 +27,9 @@ def get_paper_by_id(paper_id):
 
 def is_paper_in_db(paper_id):
     cwd = os.getcwd()
-    conn = sqlite3.connect(os.path.join(cwd, "download.db"))
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local=file.read()
+    conn = sqlite3.connect(os.path.join(local, "download.db"))
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM papers WHERE id = ?", (paper_id,))
     exists = cursor.fetchone() is not None
@@ -33,7 +39,9 @@ def is_paper_in_db(paper_id):
 def save_db(update):
     paper = get_paper_by_id(update['link'])
     cwd = os.getcwd()
-    conn = sqlite3.connect(os.path.join(cwd, "download.db"))
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local=file.read()
+    conn = sqlite3.connect(os.path.join(local, "download.db"))
     cursor = conn.cursor()
     
     if paper:
@@ -52,17 +60,19 @@ def save_db(update):
     return True
 def extract_arxiv_id(url):
     parts = url.split('/')
-    print(1)
     return parts[len(parts)-1]
     
 def save_paper(url, update = None, proxy = ""):
+    
     cwd = os.getcwd()
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local=file.read()
     if update == None:
         pdf_url = url.replace('abs', 'pdf')
     else:
         pdf_url = update['link'].replace('abs', 'pdf')
     paper = get_paper_by_id(pdf_url.replace("pdf", "abs"))
-    conn = sqlite3.connect(os.path.join(cwd, "download.db"))
+    conn = sqlite3.connect(os.path.join(local, "download.db"))
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM papers WHERE id = ? and local_link = ?", (pdf_url.replace("pdf", "abs"), ""))
     exists = cursor.fetchone() is not None
@@ -77,7 +87,7 @@ def save_paper(url, update = None, proxy = ""):
     else:
         response = requests.get(pdf_url)
     
-    directory = os.path.join(cwd,'papers')
+    directory = os.path.join(local,'papers')
     os.makedirs(directory, exist_ok=True)
     id = extract_arxiv_id(pdf_url)
     filename = f"{id}.pdf"
@@ -103,7 +113,6 @@ def down_load(updates, keywords, download_mode, proxy = ""):
                 if save_db(update):
                     if download_mode == "2":
                         save_paper(update["link"], update, proxy)
-
 
 
 def fetch_all_papers():

@@ -77,13 +77,17 @@ def fetch_arxiv_updates(categories, keywords, proxy, download_mode, days):
 
 def load_papers_from_db():
     import sqlite3
-    db_path = 'download.db'
+    cwd = os.getcwd()
+    with open(os.path.join(cwd, "local.txt"), 'r') as file:
+        local=file.read()
+    db_path = os.path.join(local, "download.db")
 
     if not os.path.exists(db_path):
         print(f"Database file does not exist at: {db_path}")
     else:
         results=[]
         try:
+            
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             query = f"SELECT * FROM papers "
