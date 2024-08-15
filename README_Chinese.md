@@ -57,7 +57,7 @@ python fetcharxiv/main.py --category cs.CV cs.RO --keywords "deep learning" "rad
 - **`--days`**：指定查询结果的天数（建议<=7，默认=3）。
 - **`--download_mode`**：指定下载模式：0表示不下载，1表示下载访问过的论文，2表示下载所有论文（默认=1）。
 - **`--view_keywords`**：您希望在网页上显示与这些关键词相关的论文。
-- **`--local`**：（绝对路径）指定数据库和论文的保存位置（默认=".local"）。
+- **`--local`**：（绝对路径）指定数据库和论文的保存位置（默认=".local/arxivfans"）。
 - 请注意，如果缺少`email_sender`、`email_password`、`email_receiver`、`smtp_server`或`smtp_port`中的任何参数，将无法发送电子邮件通知。
 
 #### 执行结果：
