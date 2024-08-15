@@ -1,7 +1,7 @@
 from flask import Flask, render_template_string, jsonify, request, send_from_directory
-from src.fetch import load_papers_from_db
+from .src.fetch import load_papers_from_db
 import os
-from src.download import save_paper
+from .src.download import save_paper
 import webbrowser
 import sys
 import threading
