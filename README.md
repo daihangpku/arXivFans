@@ -31,13 +31,13 @@ You can fetch arXiv updates by running the `main.py` script from the command lin
 
 #### Quick Start
 ```bash
-python main.py --category cs.CV cs.RO --keywords "keyword1" "keyword2"  
+fetch --category cs.CV cs.RO --keywords "keyword1" "keyword2"  
 ```
 You can change cs.CV cs.RO "keyword1" "keyword2" as you want.
 
 #### Full Args
 ```bash
-python fetcharxiv/main.py --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy http://proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily --smtp_server smtp.xxx.com --smtp_port 25orxxx --days 5 --download_mode 0/1/2 --view_keywords "keyword1" "keyword2" --local ".local"
+fetch --category cs.CV cs.RO --keywords "deep learning" "radiance field" --proxy http://proxy.example.com:8080 --email_sender your_email@example.com --email_password your_password --email_receiver recipient@example.com --frequency daily --smtp_server smtp.xxx.com --smtp_port 25orxxx --days 5 --download_mode 0/1/2 --view_keywords "keyword1" "keyword2" --local ".local"
 ```
 
 #### Parameter Description:

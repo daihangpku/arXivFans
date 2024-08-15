@@ -63,7 +63,6 @@ def extract_arxiv_id(url):
     return parts[len(parts)-1]
     
 def save_paper(url, update = None, proxy = ""):
-    
     cwd = os.getcwd()
     with open(os.path.join(cwd, "local.txt"), 'r') as file:
         local=file.read()

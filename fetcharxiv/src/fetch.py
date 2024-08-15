@@ -6,7 +6,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import multiprocessing
-from .download import down_load
+from fetcharxiv.src.download import down_load
 
 def create_session_with_proxy(proxy):
     session = requests.Session()
