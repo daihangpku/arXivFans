@@ -20,7 +20,7 @@
 2. **安装依赖**：
    确保您的系统上安装了Python >=3.8。然后，安装所需的Python包：
    ```bash
-   python setup.py
+   pip install .
    ```
 
 ---

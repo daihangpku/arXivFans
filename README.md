@@ -20,7 +20,7 @@ This guide will help you understand how to use this project to fetch updates fro
 2. **Install Dependencies**:
    Ensure you have Python >=3.8 installed on your system. Then, install the required Python packages:
    ```bash
-   python setup.py
+   pip install .
    ```
 
 ---
