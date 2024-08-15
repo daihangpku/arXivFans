@@ -1,12 +1,10 @@
 from flask import Flask, render_template_string, jsonify, request, send_from_directory
-from .src.fetch import load_papers_from_db
+from fetcharxiv.src.fetch import load_papers_from_db
 import os
-from .src.download import save_paper
+from fetcharxiv.src.download import save_paper
 import webbrowser
 import sys
 import threading
-global download_mode
-global keywords_show
 
 app = Flask(__name__)
 
@@ -18,16 +16,25 @@ def get_updates():
     return updates
 
 def handle_link_click(url):
+    download_mode = sys.argv[1]
+    length = int(sys.argv[2])
+    proxy = sys.argv[3+length]
     if download_mode == "1" or download_mode == "2":
-        save_paper(url)
+        save_paper(url, proxy=proxy)
     return {"status": "success", "message": f"Handled link click for {url}"}
 
 def handle_download(url):
-    filename = save_paper(url)
+    length = int(sys.argv[2])
+    proxy = sys.argv[3+length]
+    filename = save_paper(url, proxy=proxy)
     return {"status": "success", "message": f"Paper downloaded from {url}", "local_link": filename}
 
 @app.route('/')
 def index():
+    length = int(sys.argv[2])
+    keywords_show = []
+    for i in range(3, 3+length):
+        keywords_show.append(sys.argv[i])
     updates = get_updates()
     template = '''
 <!DOCTYPE html>
@@ -352,18 +359,19 @@ def serve_local_files(filename):
 def open_browser():
     webbrowser.open_new("http://127.0.0.1:5000/")
 
-
-
-if __name__ == "__main__":
+def main():
     download_mode = sys.argv[1]
     length = int(sys.argv[2])
     keywords_show = []
     for i in range(3, 3+length):
         keywords_show.append(sys.argv[i])
+    proxy = sys.argv[3+length]
     print(keywords_show)
-    
     print(download_mode)
-    
+    print(proxy)
     threading.Timer(1, open_browser).start()  # 自动打开浏览器
     with app.app_context():
         app.run(debug=True)
+
+if __name__ == "__main__":
+    main()

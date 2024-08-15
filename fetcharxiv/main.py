@@ -5,10 +5,10 @@ import schedule
 import time
 import os
 from datetime import datetime
-from .src.fetch import fetch_arxiv_updates
-from .src.send_email import send_email
-from .src.download import is_paper_in_db
-from .src.download import init_db
+from fetcharxiv.src.fetch import fetch_arxiv_updates
+from fetcharxiv.src.send_email import send_email
+from fetcharxiv.src.download import is_paper_in_db
+from fetcharxiv.src.download import init_db
 
 
 def fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port, download_mode, days):
@@ -26,25 +26,25 @@ def fetch_job(categories, keywords, proxy, email_sender, email_password, email_r
     print("updated")
     print(str(datetime.now().date()))
 
-def build_web(download_mode, keywords):
+def build_web(download_mode, keywords, proxy):
     time.sleep(1)
-    subprocess.run(['python', 'fetch/webpage.py', download_mode, str(len(keywords))]+ keywords)
+    subprocess.run(['web', download_mode, str(len(keywords))] + keywords + [proxy])
 
 def main():
     parser = argparse.ArgumentParser(description='Process category and keywords.')
-    parser.add_argument('--category', nargs='+', default=['cs.CV', 'cs.RO'], help='List of categories')
-    parser.add_argument('--keywords', nargs='+', default=['radiance field',"deep learning"], help='List of keywords')
-    parser.add_argument('--proxy', type=str, default="", help='Proxy settings')
+    parser.add_argument('-c', '--category', nargs='+', default=['cs.CV', 'cs.RO'], help='List of categories')
+    parser.add_argument('-k', '--keywords', nargs='+', default=['radiance field',"deep learning"], help='List of keywords')
+    parser.add_argument('-x', '--proxy', type=str, default="", help='Proxy settings')
     parser.add_argument('--email_sender', type=str, default="", help='Sender email address')
     parser.add_argument('--email_password', type=str, default="", help='Sender email password')
     parser.add_argument('--email_receiver', type=str, default="", help='Receiver email address')
-    parser.add_argument('--frequency', type=str, default="", help='regular update')
-    parser.add_argument('--smtp_server', type=str, default="", help="your smtp server's address")
-    parser.add_argument('--smtp_port', type=str, default="", help='smtp port')
+    parser.add_argument('-f', '--frequency', type=str, default="", help='regular update')
+    parser.add_argument('-s', '--smtp_server', type=str, default="", help="your smtp server's address")
+    parser.add_argument('-p', '--smtp_port', type=str, default="", help='smtp port')
     parser.add_argument('--download_mode', type=str, default="1", help='0=download all when fetching, 1=download when clicking web link,  default=1')
-    parser.add_argument('--days', type=int, default=3, help='number of days you want to trace, recommended <= 7, default=3')
+    parser.add_argument('-d', '--days', type=int, default=3, help='number of days you want to trace, recommended <= 7, default=3')
     parser.add_argument('--view_keywords', nargs='+', default=[], help='List of keywords you want to view at the website')
-    parser.add_argument('--local', type = str, default=".local/arxivfans", help="where you want to save the papers")
+    parser.add_argument('-l', '--local', type = str, default=".local/arxivfans", help="where you want to save the papers")
     args = parser.parse_args()
     categories = args.category
     keywords = args.keywords
@@ -66,7 +66,7 @@ def main():
     else:
         view_keywords = args.view_keywords
     print(f"you are searching {categories} for {keywords}.")
-    p = multiprocessing.Process(target = build_web, args=(str(download_mode), view_keywords))
+    p = multiprocessing.Process(target = build_web, args=(str(download_mode), view_keywords, proxy))
     p.start()
     print(f"updating...")
     if frequency.lower() == "daily":
