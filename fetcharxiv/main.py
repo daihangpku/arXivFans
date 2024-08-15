@@ -5,10 +5,10 @@ import schedule
 import time
 import os
 from datetime import datetime
-from src.fetch import fetch_arxiv_updates
-from src.send_email import send_email
-from src.download import is_paper_in_db
-from src.download import init_db
+from .src.fetch import fetch_arxiv_updates
+from .src.send_email import send_email
+from .src.download import is_paper_in_db
+from .src.download import init_db
 
 
 def fetch_job(categories, keywords, proxy, email_sender, email_password, email_receiver, smtp_server, smtp_port, download_mode, days):
