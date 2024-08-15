@@ -57,7 +57,7 @@ python fetcharxiv/main.py --category cs.CV cs.RO --keywords "deep learning" "rad
 - **`--days`**: Specify the number of days to query results for (recommended <=7,default=3).
 - **`--download_mode`**: Specify the download mode: 0 for no download, 1 for downloading accessed papers, 2 for downloading all papers(default=1).
 - **`--view_keywords`**: the keywords you want the papers on webpage to be relevant to.
-- **`--local`**: (absolute path)where you want your database and paper to be save(default=".local"). 
+- **`--local`**: (absolute path)where you want your database and paper to be save(default=".local/arxivfans"). 
 - Note that missing any of the parameters `email_sender`, `email_password`, `email_receiver`, `smtp_server`, or `smtp_port` will prevent email notifications from being sent.
 
 #### Execution Result:
