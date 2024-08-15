@@ -1,6 +1,6 @@
 # arXivFans
 
-This project provides an effective way to fetch the latest papers from arXiv and view them through email notifications or a web interface. With simple configuration and command-line operations, you can easily stay updated with the latest research in your field.
+ArXivFans provides an effective way to fetch the latest papers from arXiv and view them through email notifications or a web interface. With simple configuration and command-line operations, you can easily stay updated with the latest research in your field.
 
 ## User Guide
 
