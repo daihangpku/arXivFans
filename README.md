@@ -13,6 +13,8 @@ This guide will help you understand how to use this project to fetch updates fro
 1. **Clone the Repository**:
    First, clone the project code to your local machine.
    ```bash
+   conda create -n arxivfans python=3.8
+   conda activate arxivfans
    git clone <repository_url>
    cd arXivFans
    ```
